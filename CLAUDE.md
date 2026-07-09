@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-This repository is a fresh scaffold — as of now it contains only `README.md`, `LICENSE`, and an untracked `gitignore.txt` (not yet renamed to `.gitignore`). No backup code has been written yet. The sections below describe the intended design, agreed with the user, that new code in this repo should follow.
+This repository is a fresh scaffold — it contains `README.md`, `LICENSE`, and `.gitignore`, but no backup code has been written yet. The sections below describe the intended design, agreed with the user, that new code in this repo should follow.
 
 ## Purpose
 
@@ -26,5 +26,5 @@ A backup tool for a [TeslaMate](https://github.com/adminy/teslamate) stack runni
 ## Working conventions for this repo
 
 - Since this is a small standalone ops script (not a library or service), avoid over-engineering: no unnecessary abstraction layers, no config framework beyond a simple env/config file.
-- `gitignore.txt` should eventually be renamed to `.gitignore` so git actually honors it (currently `.DS_Store` shows as untracked because of this).
 - Never commit real database passwords, encryption keys, or NFS credentials — use placeholder values in any example/config files checked into the repo.
+- Local git commits fall back to an auto-generated identity (`mfunk@MacBookPro.lan`) since `user.name`/`user.email` aren't configured globally; existing commits use this until it's set.
