@@ -26,9 +26,9 @@ A backup tool for a [TeslaMate](https://github.com/adminy/teslamate) stack runni
 The Compose stack has four services (Compose project name is `mfunk`, so actual running container names are prefixed, e.g. `mfunk-database-1` — confirmed via `docker ps` in `host-rpimonitor-info.md`):
 
 - `teslamate` (container `mfunk-teslamate-1`) — the app itself (no persistent data of its own beyond the `./import` bind mount)
-- `database` (container `mfunk-database-1`) — Postgres 17, volume `teslamate-db` — **this is the primary backup target** (all trip/vehicle history)
-- `grafana` (container `mfunk-grafana-1`) — volume `teslamate-grafana-data` (dashboards/config)
-- `mosquitto` (container `mfunk-mosquitto-1`) — volumes `mosquitto-conf`, `mosquitto-data`
+- `database` (container `mfunk-database-1`) — Postgres 17, volume `mfunk_teslamate-db` — **this is the primary backup target** (all trip/vehicle history)
+- `grafana` (container `mfunk-grafana-1`) — volume `mfunk_teslamate-grafana-data` (dashboards/config). Note: a stray, unrelated, empty volume named bare `teslamate-grafana-data` (no project prefix) also exists on the host — don't confuse the two.
+- `mosquitto` (container `mfunk-mosquitto-1`) — volumes `mfunk_mosquitto-conf`, `mfunk_mosquitto-data`
 
 ## Intended architecture
 

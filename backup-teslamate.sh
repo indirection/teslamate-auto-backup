@@ -59,6 +59,18 @@ if [[ -z "$DB_CONTAINER" ]]; then
   exit 1
 fi
 
+# Same story for the Grafana volume: compose prefixes volume names with the
+# project name (e.g. "mfunk_teslamate-grafana-data"), so resolve it by label
+# rather than trusting a bare name, which may collide with a stray volume.
+GRAFANA_VOLUME_RESOLVED="$(docker volume ls --filter "label=com.docker.compose.project=${COMPOSE_PROJECT:-}" \
+  --filter "label=com.docker.compose.volume=teslamate-grafana-data" --format '{{.Name}}' | head -n1 || true)"
+GRAFANA_VOLUME="${GRAFANA_VOLUME_RESOLVED:-${GRAFANA_VOLUME:-}}"
+
+if [[ -z "$GRAFANA_VOLUME" ]]; then
+  echo "Could not resolve the Grafana volume (checked compose project '${COMPOSE_PROJECT:-}' and GRAFANA_VOLUME fallback)." >&2
+  exit 1
+fi
+
 timestamp="$(date '+%Y%m%d-%H%M%S')"
 db_file="teslamate-db-${timestamp}.sql.gz"
 grafana_file="teslamate-grafana-${timestamp}.tar.gz"
