@@ -23,17 +23,17 @@ A backup tool for a [TeslaMate](https://github.com/adminy/teslamate) stack runni
 - external `nas1.taile146ca.ts.net` (`100.110.135.20`) (Tailscale address). 
 - Mount path `/volume1/backup`
 
-The Compose stack has four services:
+The Compose stack has four services (Compose project name is `mfunk`, so actual running container names are prefixed, e.g. `mfunk-database-1` — confirmed via `docker ps` in `host-rpimonitor-info.md`):
 
-- `teslamate` — the app itself (no persistent data of its own beyond the `./import` bind mount)
-- `database` — Postgres 17, volume `teslamate-db` — **this is the primary backup target** (all trip/vehicle history)
-- `grafana` — volume `teslamate-grafana-data` (dashboards/config)
-- `mosquitto` — volumes `mosquitto-conf`, `mosquitto-data`
+- `teslamate` (container `mfunk-teslamate-1`) — the app itself (no persistent data of its own beyond the `./import` bind mount)
+- `database` (container `mfunk-database-1`) — Postgres 17, volume `teslamate-db` — **this is the primary backup target** (all trip/vehicle history)
+- `grafana` (container `mfunk-grafana-1`) — volume `teslamate-grafana-data` (dashboards/config)
+- `mosquitto` (container `mfunk-mosquitto-1`) — volumes `mosquitto-conf`, `mosquitto-data`
 
 ## Intended architecture
 
 - **Language**: shell script(s) (bash), not Python or a container — this is meant to be a simple host-level ops tool.
-- **Backup method**: `docker exec` into the `database` container and run `pg_dump` (not a raw volume copy) to get a consistent, restorable Postgres dump. 
+- **Backup method**: `docker exec` into the `mfunk-database-1` container (or resolve it dynamically via `docker compose ps -q database`, in case the project name changes) and run `pg_dump` (not a raw volume copy) to get a consistent, restorable Postgres dump.
   - Also archiving the `teslamate-grafana-data` volume to support rebuilding the dashboards/config.
 - **Destination**: copy/rsync the resulting dump(s) to an NFS-mounted path on the network (no cloud/S3 target).
   - /mnt/backup (see: host-rpimonitor-info.md)
