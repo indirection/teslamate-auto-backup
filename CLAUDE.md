@@ -38,6 +38,14 @@ The Compose stack has four services (Compose project name is `mfunk`, so actual 
 - **Destination**: copy/rsync the resulting dump(s) to an NFS-mounted path on the network (no cloud/S3 target).
   - /mnt/backup (see: host-rpimonitor-info.md)
 - **Scheduling**: triggered by a **host crontab** entry — not a systemd timer, not a container with an internal scheduler.
+
+## Live deployment (rpimonitor)
+
+Deployed and running as of 2026-07-11:
+
+- Script + config live at `/home/mfunk/teslamate-auto-backup/` (`backup-teslamate.sh`, `config.env` — the latter is `600` perms, not in git).
+- Crontab (user `mfunk`): `0 3 * * * /home/mfunk/teslamate-auto-backup/backup-teslamate.sh /home/mfunk/teslamate-auto-backup/config.env >> /home/mfunk/teslamate-auto-backup/backup.log 2>&1` — daily at 3 AM, logging to `backup.log` in the same directory.
+- `/mnt/backup/teslamate/{db,grafana}` is owned by `mfunk:mfunk` (had to `sudo chown` it once — it was root-owned under the root-owned `/mnt/backup` NFS mount root).
 - **Secrets**: DB credentials (`DATABASE_USER`/`DATABASE_PASS`/`DATABASE_NAME`) must be read from a local config/env file that is gitignored, never hardcoded into the script or committed.
 
 ## Working conventions for this repo
