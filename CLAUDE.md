@@ -8,7 +8,22 @@ This repository is a fresh scaffold — it contains `README.md`, `LICENSE`, and 
 
 ## Purpose
 
-A backup tool for a [TeslaMate](https://github.com/adminy/teslamate) stack running via Docker Compose on a host (referenced as `rpimonitor`, reachable at `100.125.93.20` — appears to be a Tailscale address). The Compose stack has four services:
+A backup tool for a [TeslaMate](https://github.com/adminy/teslamate) stack running via Docker Compose on a host referenced as `rpimonitor` to `nas1`. 
+
+## Environment
+
+### Host: rpimonitor
+
+- internal `rpimonitor.thefunkhouse.net` (`10.1.1.3`) 
+- external `rpimonitor.taile146ca.ts.net` (`100.125.93.20`) (Tailscale address). 
+
+### Host: nas1 backup target
+
+- internal `NAS1.thefunkhouse.net` (`10.1.1.4`)
+- external `nas1.taile146ca.ts.net` (`100.110.135.20`) (Tailscale address). 
+- Mount path `/volume1/backup`
+
+The Compose stack has four services:
 
 - `teslamate` — the app itself (no persistent data of its own beyond the `./import` bind mount)
 - `database` — Postgres 17, volume `teslamate-db` — **this is the primary backup target** (all trip/vehicle history)
@@ -18,8 +33,10 @@ A backup tool for a [TeslaMate](https://github.com/adminy/teslamate) stack runni
 ## Intended architecture
 
 - **Language**: shell script(s) (bash), not Python or a container — this is meant to be a simple host-level ops tool.
-- **Backup method**: `docker exec` into the `database` container and run `pg_dump` (not a raw volume copy) to get a consistent, restorable Postgres dump. Consider also optionally archiving the `teslamate-grafana-data` volume if dashboards/config need to survive a rebuild.
+- **Backup method**: `docker exec` into the `database` container and run `pg_dump` (not a raw volume copy) to get a consistent, restorable Postgres dump. 
+  - Also archiving the `teslamate-grafana-data` volume to support rebuilding the dashboards/config.
 - **Destination**: copy/rsync the resulting dump(s) to an NFS-mounted path on the network (no cloud/S3 target).
+  - /mnt/backup (see: host-rpimonitor-info.md)
 - **Scheduling**: triggered by a **host crontab** entry — not a systemd timer, not a container with an internal scheduler.
 - **Secrets**: DB credentials (`DATABASE_USER`/`DATABASE_PASS`/`DATABASE_NAME`) must be read from a local config/env file that is gitignored, never hardcoded into the script or committed.
 
